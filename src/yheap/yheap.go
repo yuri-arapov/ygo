@@ -2,6 +2,8 @@
 
 package yheap
 
+import "math"
+
 type Less func(a, b int) bool
 
 type Heap struct {
@@ -18,6 +20,7 @@ func MakeHeap(less Less, size int) Heap {
 func (h *Heap) Size() int   { return h.size }
 func (h *Heap) Count() int  { return h.count }
 func (h *Heap) Data() []int { return h.data }
+func (h *Heap) Height() int { return int(math.Round(math.Ceil(log2(h.count + 1)))) }
 
 func (h *Heap) Push(i int) {
 	if h.count == h.size {
@@ -79,6 +82,10 @@ func (h *Heap) heapifyDown(pos int) {
 		h.swap(smaller, pos)
 		h.heapifyDown(smaller)
 	}
+}
+
+func log2(x int) float64 {
+	return math.Log(float64(x)) / math.Log(2.0)
 }
 
 func init() {

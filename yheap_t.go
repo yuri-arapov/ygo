@@ -60,6 +60,7 @@ func main() {
 		for i := range data {
 			h.Push(data[i])
 		}
+		fmt.Println("heap height", h.Height())
 
 		sortedByHeap := data
 		for i := range data {
