@@ -7,49 +7,8 @@ import (
 	//"errors"
 	"fmt"
 	"os"
-	"runtime"
-	"strings"
 	"time"
 )
-
-var traceOn bool = true
-var debugOn bool = true
-
-func trace() {
-	if traceOn {
-		_, file, line, ok := runtime.Caller(1 /* the '1' is to skip trace() function itself */)
-		if ok {
-			idx := strings.LastIndex(file, "/")
-			fmt.Printf("TRACE: %s %d\n", file[idx+1:], line)
-		}
-	}
-}
-
-func panicIfError(err error) {
-	if err != nil {
-		trace()
-		panic(err)
-	}
-}
-
-func panicIfFalse(res bool, msg string) {
-	if !res {
-		trace()
-		panic(msg)
-	}
-}
-
-func printDebug(format string, args ...interface{}) {
-	if debugOn {
-		fmt.Printf("DEBUG: "+format+"\n", args...)
-	}
-}
-
-func printExecTime(start time.Time, name string) {
-	if debugOn {
-		printDebug("%s took %s", name, time.Since(start))
-	}
-}
 
 type edge struct {
 	from int
@@ -61,7 +20,7 @@ type edge struct {
 // Process incoming data with 'handler' function.
 func readFilePerLine(fname string, handler func(line string) error) (e error) {
 
-	trace()
+	Trace()
 
 	file, err := os.Open(fname)
 	defer func() {
@@ -72,16 +31,16 @@ func readFilePerLine(fname string, handler func(line string) error) (e error) {
 			e = err // assign 'e' (named function result) to captured error
 		}
 	}()
-	panicIfError(err)
+	PanicIfError(err)
 
 	scanner := bufio.NewScanner(file)
 	for scanner.Scan() {
-		panicIfError(handler(scanner.Text()))
+		PanicIfError(handler(scanner.Text()))
 	}
 
-	panicIfError(scanner.Err())
+	PanicIfError(scanner.Err())
 
-	trace()
+	Trace()
 	return nil
 }
 
@@ -94,7 +53,7 @@ func readGraph(fname string) (nodeCount int, edges []edge, err error) {
 
 	start := time.Now()
 
-	trace()
+	Trace()
 	lineNo, edgeCount := 0, 0
 
 	nodeCount = 0
@@ -105,19 +64,19 @@ func readGraph(fname string) (nodeCount int, edges []edge, err error) {
 			if lineNo == 1 {
 				// parse 'nodeCount edgeCount'
 				n, e := fmt.Sscanf(line, "%d %d", &nodeCount, &edgeCount)
-				panicIfFalse(n == 2 && e == nil,
+				PanicIfFalse(n == 2 && e == nil,
 					fmt.Sprintf("failed to read %s, line %d: bad format", fname, lineNo))
 			} else {
 				// parse 'from to cost'
 				var from, to, cost int
 				n, e := fmt.Sscanf(line, "%d %d %d", &from, &to, &cost)
-				panicIfFalse(n == 3 && e == nil,
+				PanicIfFalse(n == 3 && e == nil,
 					fmt.Sprintf("failed to read %s, line %d: bad format", fname, lineNo))
 				c1 := cap(edges)
 				edges = append(edges, edge{from, to, cost})
 				c2 := cap(edges)
 				if c2 != c1 {
-					printDebug("readGraph() resize: %d->%d (+%d)", c1, c2, c2-c1)
+					PrintDebug("readGraph() resize: %d->%d (+%d)", c1, c2, c2-c1)
 				}
 			}
 			return nil
@@ -126,36 +85,34 @@ func readGraph(fname string) (nodeCount int, edges []edge, err error) {
 		return 0, nil, err
 	}
 
-	trace()
+	Trace()
 
-	printExecTime(start, "readGraph()")
+	PrintExecTime(start, "readGraph()")
 
 	return nodeCount, edges, nil
 }
 
 func main() {
-	traceOn = false
-	debugOn = false
-
 	for n, arg := range os.Args {
 		if n > 0 {
 			switch arg {
 			case "-d":
-				debugOn = true
+				EnableDebug()
 			case "-t":
-				traceOn = true
+				EnableTrace()
 			}
 		}
 	}
 
-	trace()
+	Trace()
 
-	nodeCount, edges, err := readGraph("large.txt")
-	panicIfError(err)
+	const fname string = "large.txt"
+	nodeCount, edges, err := readGraph(fname)
+	PanicIfError(err)
 
-	fmt.Printf("nodes %d, edges %d, %v...\n", nodeCount, len(edges), edges[:3])
+	fmt.Printf("%s: nodes %d, edges %d, %v...\n", fname, nodeCount, len(edges), edges[:3])
 
-	trace()
+	Trace()
 }
 
 // end of file
