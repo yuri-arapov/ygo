@@ -4,7 +4,6 @@ package main
 
 import (
 	"bufio"
-	//"errors"
 	"fmt"
 	"os"
 	"time"
