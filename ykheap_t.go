@@ -22,7 +22,7 @@ func equal(a, b []int) bool {
 	if len(a) != len(b) {
 		return false
 	}
-	for i := range a {
+	for i, _ := range a {
 		if a[i] != b[i] {
 			return false
 		}
@@ -44,7 +44,7 @@ func main() {
 		{"max heap", func(a, b int) bool { return a > b }}}
 
 	for _, cfg := range config {
-		h := yheap.MakeHeap(cfg.less, size)
+		h := yheap.MakeKHeap(cfg.less, size)
 		data := make([]int, size)
 		for i := range data {
 			data[i] = i
@@ -59,16 +59,18 @@ func main() {
 			func(i, j int) bool { return cfg.less(sorted[i], sorted[j]) })
 		fmt.Println("sorted    ", sorted[:show], "...")
 
-		for i := range data {
-			h.Push(data[i])
+		for _, x := range data {
+			h.Push(x, x)
 		}
 		fmt.Println("heap height", h.Height())
 
 		sortedByHeap := make([]int, size)
-		for i := range data {
-			sortedByHeap[i] = h.Pop()
+		for i, _ := range data {
+			sortedByHeap[i], _ = h.Pop()
 		}
 		fmt.Println("from heap ", sortedByHeap[:show], "...")
+
+		///foo := []int{0, 0, 0}
 		if equal(sorted, sortedByHeap) {
 			fmt.Println(cfg.what, "OK")
 		} else {

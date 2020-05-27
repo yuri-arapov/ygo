@@ -2,10 +2,6 @@
 
 package yheap
 
-import "math"
-
-type Less func(a, b int) bool
-
 type Heap struct {
 	less  Less  // '<' operator
 	size  int   // size of the heap
@@ -20,21 +16,17 @@ func MakeHeap(less Less, size int) Heap {
 func (h *Heap) Size() int   { return h.size }
 func (h *Heap) Count() int  { return h.count }
 func (h *Heap) Data() []int { return h.data }
-func (h *Heap) Height() int { return int(math.Round(math.Ceil(log2(h.count + 1)))) }
+func (h *Heap) Height() int { return bTreeHeight(h.count + 1) }
 
 func (h *Heap) Push(i int) {
-	if h.count == h.size {
-		panic("Push: Heap is full")
-	}
+	panicIf(h.count == h.size, "Push: Heap is full")
 	h.data[h.count] = i
 	h.count++
 	h.heapifyUp(h.count - 1)
 }
 
 func (h *Heap) Pop() int {
-	if h.count == 0 {
-		panic("Pop: Heap is empty")
-	}
+	panicIf(h.count == 0, "Pop: Heap is empty")
 	res := h.data[0]
 	h.swap(0, h.count-1)
 	h.count--
@@ -43,15 +35,9 @@ func (h *Heap) Pop() int {
 }
 
 func (h *Heap) Top() int {
-	if h.count == 0 {
-		panic("Top: Heap is empty")
-	}
+	panicIf(h.count == 0, "Top: Heap is empty")
 	return h.data[0]
 }
-
-func (h *Heap) parent(pos int) int { return (pos - 1) / 2 }
-func (h *Heap) left(pos int) int   { return pos*2 + 1 }
-func (h *Heap) right(pos int) int  { return pos*2 + 2 }
 
 func (h *Heap) swap(p1, p2 int) {
 	h.data[p1], h.data[p2] = h.data[p2], h.data[p1]
@@ -63,7 +49,7 @@ func (h *Heap) lessByPos(p1, p2 int) bool {
 
 func (h *Heap) heapifyUp(pos int) {
 	if pos > 0 {
-		parent := h.parent(pos)
+		parent := parent(pos)
 		if h.lessByPos(pos, parent) {
 			h.swap(pos, parent)
 			h.heapifyUp(parent)
@@ -73,7 +59,7 @@ func (h *Heap) heapifyUp(pos int) {
 
 func (h *Heap) heapifyDown(pos int) {
 	smaller := pos
-	for _, p := range []int{h.left(pos), h.right(pos)} {
+	for _, p := range []int{left(pos), right(pos)} {
 		if p < h.count && h.lessByPos(p, smaller) {
 			smaller = p
 		}
@@ -82,10 +68,6 @@ func (h *Heap) heapifyDown(pos int) {
 		h.swap(smaller, pos)
 		h.heapifyDown(smaller)
 	}
-}
-
-func log2(x int) float64 {
-	return math.Log(float64(x)) / math.Log(2.0)
 }
 
 func init() {
