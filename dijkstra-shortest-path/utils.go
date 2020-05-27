@@ -2,7 +2,9 @@
 package main
 
 import (
+	"bufio"
 	"fmt"
+	"os"
 	"runtime"
 	"strings"
 	"time"
@@ -36,10 +38,10 @@ func PanicIfError(err error) {
 	}
 }
 
-func PanicIfFalse(res bool, msg string) {
-	if !res {
+func PanicIf(cond bool, format string, args ...interface{}) {
+	if cond {
 		Trace()
-		panic(msg)
+		panic(fmt.Sprintf(format, args...))
 	}
 }
 
@@ -53,6 +55,34 @@ func PrintExecTime(start time.Time, name string) {
 	if debugOn {
 		PrintDebug("%s took %s", name, time.Since(start))
 	}
+}
+
+// Read 'fname' file line by line.
+// Process incoming data with 'handler' function.
+func readFilePerLine(fname string, handler func(line string) error) (e error) {
+
+	Trace()
+
+	file, err := os.Open(fname)
+	defer func() {
+		file.Close()
+		r := recover()
+		err, ok := r.(error) // typecast 'r' to 'error'
+		if ok {
+			e = err // assign 'e' (named function result) to captured error
+		}
+	}()
+	PanicIfError(err)
+
+	scanner := bufio.NewScanner(file)
+	for scanner.Scan() {
+		PanicIfError(handler(scanner.Text()))
+	}
+
+	PanicIfError(scanner.Err())
+
+	Trace()
+	return nil
 }
 
 // end of file

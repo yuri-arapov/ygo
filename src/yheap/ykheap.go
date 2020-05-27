@@ -3,17 +3,17 @@
 // Keeps track of min/max key-node pairs.
 //
 // operations:
-//   MakeHeap
-//   Size
-//   Count
-//   Height
-//   Contains
-//   Push
-//   Pop
-//   Top
-//   GetKey
-//   Delete
-//   Update
+//   MakeKHeap(less Less, size int) -> KHeap
+//   Size() -> int
+//   Count() -> int
+//   Height() -> int
+//   Contains(node int) -> bool
+//   Push(node, key int)
+//   Pop() -> node, key int
+//   Top() -> node, key int
+//   GetKey(node int) -> key int
+//   Delete(node int)
+//   Update(node, newKey int)
 
 package yheap
 
@@ -103,7 +103,7 @@ func (h *KHeap) Update(node int, newKey int) {
 	h.Push(node, newKey)
 }
 
-func (h *KHeap) hasParent(pos int) bool { return pos > 0 }
+func hasParent(pos int) bool { return pos > 0 }
 
 func (h *KHeap) swap(p1, p2 int) {
 	n1, n2 := h.posNode[p1], h.posNode[p2]
@@ -158,7 +158,7 @@ func (h *KHeap) heapify(pos int) {
 	left := left(pos)
 	right := right(pos)
 	switch {
-	case h.hasParent(pos) && h.lessByPos(pos, parent):
+	case hasParent(pos) && h.lessByPos(pos, parent):
 		h.swap(pos, parent)
 		h.heapify(parent)
 	case h.isGoodPos(left) && h.lessByPos(left, pos):

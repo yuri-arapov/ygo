@@ -3,7 +3,6 @@
 package main
 
 import (
-	"bufio"
 	"fmt"
 	"os"
 	"time"
@@ -13,34 +12,6 @@ type edge struct {
 	from int
 	to   int
 	cost int
-}
-
-// Read 'fname' file line by line.
-// Process incoming data with 'handler' function.
-func readFilePerLine(fname string, handler func(line string) error) (e error) {
-
-	Trace()
-
-	file, err := os.Open(fname)
-	defer func() {
-		file.Close()
-		r := recover()
-		err, ok := r.(error) // typecast 'r' to 'error'
-		if ok {
-			e = err // assign 'e' (named function result) to captured error
-		}
-	}()
-	PanicIfError(err)
-
-	scanner := bufio.NewScanner(file)
-	for scanner.Scan() {
-		PanicIfError(handler(scanner.Text()))
-	}
-
-	PanicIfError(scanner.Err())
-
-	Trace()
-	return nil
 }
 
 // Read graph edges from text file.
@@ -63,14 +34,12 @@ func readGraph(fname string) (nodeCount int, edges []edge, err error) {
 			if lineNo == 1 {
 				// parse 'nodeCount edgeCount'
 				n, e := fmt.Sscanf(line, "%d %d", &nodeCount, &edgeCount)
-				PanicIfFalse(n == 2 && e == nil,
-					fmt.Sprintf("failed to read %s, line %d: bad format", fname, lineNo))
+				PanicIf(n != 2 || e != nil, "failed to read %s, line %d: bad format", fname, lineNo)
 			} else {
 				// parse 'from to cost'
 				var from, to, cost int
 				n, e := fmt.Sscanf(line, "%d %d %d", &from, &to, &cost)
-				PanicIfFalse(n == 3 && e == nil,
-					fmt.Sprintf("failed to read %s, line %d: bad format", fname, lineNo))
+				PanicIf(n != 3 || e != nil, "failed to read %s, line %d: bad format", fname, lineNo)
 				c1 := cap(edges)
 				edges = append(edges, edge{from, to, cost})
 				c2 := cap(edges)
