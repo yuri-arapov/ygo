@@ -31,20 +31,21 @@ func equal(a, b []int) bool {
 }
 
 func main() {
-	const size = 1000000
+	const size = 100
 	const show = 10
 
 	fmt.Println("Heap test program, size", size)
 
+	lessThan := func(a, b int) bool { return a < b }
+	greaterThan := func(a, b int) bool { return a > b }
+
 	config := []struct {
 		what string
 		less yheap.Less
-	}{
-		{"min heap", func(a, b int) bool { return a < b }},
-		{"max heap", func(a, b int) bool { return a > b }}}
+	}{{"min heap", lessThan}, {"max heap", greaterThan}}
 
 	for _, cfg := range config {
-		h := yheap.MakeKHeap(cfg.less, size)
+		h := yheap.MakeKHeap(size, cfg.less)
 		data := make([]int, size)
 		for i := range data {
 			data[i] = i
@@ -76,7 +77,55 @@ func main() {
 		} else {
 			fmt.Println(cfg.what, "sort failed")
 		}
+		fmt.Printf("**********************************************\n")
 	}
+
+	fmt.Printf("**********************************************\n")
+	const s = 14
+	h := yheap.MakeKHeap(s, lessThan)
+	data := make([]int, s)
+	for i := range data {
+		data[i] = i
+	}
+	shuffle(&data)
+	for i, n := range data {
+		h.Push(i, n)
+	}
+	node := s / 2
+	fmt.Printf("updating node %d\n", node)
+	PrintHeap(h)
+	for x := 0; x < s; x++ {
+		key := h.GetKey(node)
+		newKey := key - 1
+		fmt.Printf("node %d: %d->%d\n", node, key, newKey)
+		h.Update(node, newKey)
+		PrintHeap(h)
+		fmt.Printf("-----\n")
+	}
+
+	/*
+		fmt.Printf("**********************************************\n")
+		h2 := yheap.MakeKHeap(s, lessThan)
+		h3 := yheap.MakeKHeap(s, lessThan)
+		for i, n := range data {
+			h2.Push(i, n)
+			h3.Push(i, n)
+		}
+		for x := 0; x < s; x++ {
+			key := h2.GetKey(node)
+			if key != h3.GetKey(node) {
+				fmt.Printf("!!! keys mismatch node=%d!!!\n", node)
+			}
+			h2.Update(node, key-1)
+			h3.UpdateInplace(node, key-1)
+			p2, p3 := h2.GetPos(node), h3.GetPos(node)
+			if p2 != p3 {
+				fmt.Printf("pos mismatch: node=%d pos2=%d pos3=%d\n", node, p2, p3)
+			} else {
+				fmt.Printf("ok\n")
+			}
+		}
+	*/
 }
 
 // end of file

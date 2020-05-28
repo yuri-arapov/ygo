@@ -85,4 +85,12 @@ func readFilePerLine(fname string, handler func(line string) error) (e error) {
 	return nil
 }
 
+func makeArray(size int, dflt int) (res []int) {
+	res = make([]int, size)
+	for i := range res {
+		res[i] = dflt
+	}
+	return
+}
+
 // end of file

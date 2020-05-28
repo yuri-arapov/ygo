@@ -44,7 +44,7 @@ func main() {
 		{"max heap", func(a, b int) bool { return a > b }}}
 
 	for _, cfg := range config {
-		h := yheap.MakeHeap(cfg.less, size)
+		h := yheap.MakeHeap(size, cfg.less)
 		data := make([]int, size)
 		for i := range data {
 			data[i] = i

@@ -3,17 +3,19 @@
 // Keeps track of min/max key-node pairs.
 //
 // operations:
-//   MakeKHeap(less Less, size int) -> KHeap
-//   Size() -> int
-//   Count() -> int
-//   Height() -> int
-//   Contains(node int) -> bool
+//   MakeKHeap(less Less, size int) KHeap
+//   Size() int
+//   Count() int
+//   Height() int
+//   Contains(node int) bool
 //   Push(node, key int)
-//   Pop() -> node, key int
-//   Top() -> node, key int
-//   GetKey(node int) -> key int
+//   Pop() node, key int
+//   Top() node, key int
+//   GetKey(node int) key int
 //   Delete(node int)
 //   Update(node, newKey int)
+//   GetPos(node int) int
+//   At(pos int) node, key int
 
 package yheap
 
@@ -31,7 +33,7 @@ const (
 	badNode int = -1
 )
 
-func MakeKHeap(less Less, size int) KHeap {
+func MakeKHeap(size int, less Less) KHeap {
 	nodeKey := make([]int, size)
 	nodePos := make([]int, size)
 	posNode := make([]int, size)
@@ -62,7 +64,7 @@ func (h *KHeap) Push(node, key int) {
 }
 
 func (h *KHeap) Pop() (node, key int) {
-	panicIf(h.count == 0, "Top: heap empty")
+	panicIf(h.count == 0, "Pop: heap empty")
 	node = h.posNode[0]
 	key = h.nodeKey[node]
 	h.nodePos[node] = badPos
@@ -101,6 +103,18 @@ func (h *KHeap) Update(node int, newKey int) {
 	panicIf(!h.Contains(node), "Update: not in heap: %d", node)
 	h.Delete(node)
 	h.Push(node, newKey)
+}
+
+func (h *KHeap) GetPos(node int) int {
+	panicIf(!h.Contains(node), "Update: not in heap: %d", node)
+	return h.nodePos[node]
+}
+
+func (h *KHeap) At(pos int) (node, key int) {
+	panicIf(!(0 <= pos && pos < h.count), "At: out of range: %d", pos)
+	node = h.posNode[pos]
+	key = h.nodeKey[node]
+	return
 }
 
 func hasParent(pos int) bool { return pos > 0 }

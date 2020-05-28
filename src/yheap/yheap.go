@@ -9,7 +9,7 @@ type Heap struct {
 	data  []int // data
 }
 
-func MakeHeap(less Less, size int) Heap {
+func MakeHeap(size int, less Less) Heap {
 	return Heap{less, size, 0, make([]int, size)}
 }
 
