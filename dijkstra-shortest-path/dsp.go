@@ -5,6 +5,8 @@ package main
 import (
 	"fmt"
 	"os"
+	"path"
+	"strconv"
 	"time"
 	"yheap"
 )
@@ -166,6 +168,10 @@ func dijrstraShortestPath(g []edge, s int) []int {
 }
 
 func main() {
+	fname := "large.txt"
+	needFile := false
+	source := 1
+	needSource := false
 	for n, arg := range os.Args {
 		if n > 0 {
 			switch arg {
@@ -173,20 +179,53 @@ func main() {
 				EnableDebug()
 			case "-t":
 				EnableTrace()
+			case "-f":
+				needFile = true
+			case "-s":
+				needSource = true
+			case "-h":
+				fmt.Printf("%s is a Dijkstra shortest path algorithm implementation\n")
+				fmt.Printf("Usage:\n")
+				fmt.Printf("    %s [-h] [-d] [-t] [-f file] [-s node]\n", path.Base(os.Args[0]))
+				fmt.Printf("Options:\n")
+				fmt.Printf("    -h       print help and exit\n")
+				fmt.Printf("    -d       print debug info\n")
+				fmt.Printf("    -t       print trace info\n")
+				fmt.Printf("    -f file  read graph from \"file\", default \"%s\"\n", fname)
+				fmt.Printf("    -s node  source node, default \"%d\"\n", source)
+				return
+			default:
+				switch {
+				case needFile:
+					fname = arg
+					needFile = false
+				case needSource:
+					s, err := strconv.Atoi(arg)
+					PanicIfError(err)
+					source = s
+					needSource = false
+				}
 			}
 		}
 	}
 
+	if needFile {
+		fmt.Printf("-f option: file name expected")
+		return
+	}
+	if needSource {
+		fmt.Printf("-s option: source node expected")
+	}
+
 	Trace()
 
-	const fname string = "large.txt"
 	nodeCount, edges, err := readGraph(fname)
 	PanicIfError(err)
 
 	fmt.Printf("%s: nodes %d, edges %d, %v...\n", fname, nodeCount, len(edges), edges[:3])
 
 	start := time.Now()
-	res := dijrstraShortestPath(edges, 1)
+	res := dijrstraShortestPath(edges, source)
 	PrintExecTime(start, "Dijkstra shortest path algorithm")
 	fmt.Printf("%v...\n", res[:10])
 
