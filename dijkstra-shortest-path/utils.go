@@ -11,14 +11,14 @@ import (
 )
 
 var traceOn bool = false
-var debugOn bool = false
+var debugLvl int = 0
 
 func EnableTrace() {
 	traceOn = true
 }
 
 func EnableDebug() {
-	debugOn = true
+	debugLvl += 1
 }
 
 func Trace() {
@@ -46,15 +46,17 @@ func PanicIf(cond bool, format string, args ...interface{}) {
 }
 
 func PrintDebug(format string, args ...interface{}) {
-	if debugOn {
+	PrintDebugLvl(1, format, args...)
+}
+
+func PrintDebugLvl(level int, format string, args ...interface{}) {
+	if level <= debugLvl {
 		fmt.Printf("DEBUG: "+format+"\n", args...)
 	}
 }
 
 func PrintExecTime(start time.Time, name string) {
-	if debugOn {
-		PrintDebug("%s took %s", name, time.Since(start))
-	}
+	PrintDebug("%s took %s", name, time.Since(start))
 }
 
 // Read 'fname' file line by line.

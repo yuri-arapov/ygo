@@ -54,7 +54,7 @@ func readGraph(fname string) (nodeCount int, edges []edge, err error) {
 				edges = append(edges, edge{from, to, cost})
 				c2 := cap(edges)
 				if c2 != c1 {
-					PrintDebug("readGraph() resize: %d->%d (+%d)", c1, c2, c2-c1)
+					PrintDebugLvl(2, "readGraph() resize: %d->%d (+%d)", c1, c2, c2-c1)
 				}
 			}
 			return nil
