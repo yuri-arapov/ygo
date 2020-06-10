@@ -201,20 +201,27 @@ func main() {
 					needFile = false
 				case needSource:
 					s, err := strconv.Atoi(arg)
-					PanicIfError(err)
+					if err != nil {
+						fmt.Printf("-s option: bad argument \"%s\"\n", arg)
+						return
+					}
 					source = s
 					needSource = false
+				default:
+					fmt.Printf("Unexpected command line argument: \"%s\"\n", arg)
+					return
 				}
 			}
 		}
 	}
 
 	if needFile {
-		fmt.Printf("-f option: file name expected")
+		fmt.Printf("-f option: file name expected\n")
 		return
 	}
 	if needSource {
-		fmt.Printf("-s option: source node expected")
+		fmt.Printf("-s option: source node expected\n")
+		return
 	}
 
 	Trace()
